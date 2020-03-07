@@ -6,12 +6,9 @@ public class MainCharacter : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKey(KeyCode.LeftArrow))
+        if (Mathf.Abs(Input.GetAxis("Horizontal")) > 0.1f)
         {
-            transform.position += Vector3.left * speed;
-        } else if (Input.GetKey(KeyCode.RightArrow))
-        {
-            transform.position += Vector3.right * speed;
+            transform.position += Vector3.right * (Input.GetAxis("Horizontal") * speed * Time.deltaTime);
         }
     }
 }
