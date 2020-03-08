@@ -154,7 +154,7 @@ MonoBehaviour:
   column: 10
   enemyPrefab: {fileID: 1304426214982647943, guid: 744cdf3bd7d7cb74ebe61fb946882e23,
     type: 3}
-  stepDelay: 1
+  stepDelay: 5
 --- !u!4 &279774607
 Transform:
   m_ObjectHideFlags: 0

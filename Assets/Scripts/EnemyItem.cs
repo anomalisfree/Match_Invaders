@@ -1,14 +1,16 @@
 ﻿using System;
+using System.Collections;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 public class EnemyItem : MonoBehaviour
 {
     public Color color;
+    public Action<int, int, Color> onDead;
 
     [SerializeField] private float gridScale;
     [SerializeField] private float movingSpeed;
+    [SerializeField] private GameObject deadPrefab;
 
     private Transform _enemyTransform;
     private SpriteRenderer _spriteRenderer;
@@ -38,6 +40,10 @@ public class EnemyItem : MonoBehaviour
             case 3:
                 color = _spriteRenderer.color = Color.blue;
                 break;
+            
+            case 4:
+                color = _spriteRenderer.color = Color.white;
+                break;
         }
 
         SetPos(x, y);
@@ -58,5 +64,37 @@ public class EnemyItem : MonoBehaviour
             _enemyTransform.localPosition = Vector3.MoveTowards(_enemyTransform.localPosition,
                 (Vector3.right * _x + Vector3.down * _y) * gridScale, Time.deltaTime * movingSpeed);
         }
+    }
+
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        if (other.gameObject.GetComponent<Bullet>() != null)
+        {
+            Destroy(other.gameObject);
+            EnemyDead();
+        }
+    }
+
+    public void DelayDead()
+    {
+        StartCoroutine(DeadAfterDaley());
+    }
+
+    private IEnumerator DeadAfterDaley()
+    {
+        yield return null;
+        EnemyDead();
+    }
+
+    private void EnemyDead()
+    {
+        onDead.Invoke(_x, _y, color);
+        
+        var transformThis = transform;
+        var deadEnemy = Instantiate(deadPrefab, transformThis.position, transformThis.rotation);
+        deadEnemy.GetComponent<SpriteRenderer>().color = color;
+        Destroy(deadEnemy, 0.2f);
+            
+        Destroy(gameObject);
     }
 }
