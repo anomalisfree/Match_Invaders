@@ -87,6 +87,7 @@ public class EnemyItem : MonoBehaviour
 
     private void EnemyDead()
     {
+        StopAllCoroutines();
         onDead.Invoke(_x, _y, color);
         
         var transformThis = transform;

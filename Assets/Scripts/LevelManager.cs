@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 public class LevelManager : MonoBehaviour
@@ -9,6 +10,8 @@ public class LevelManager : MonoBehaviour
 
     [SerializeField] private GameObject enemyPrefab;
     [SerializeField] private float stepDelay;
+
+    [SerializeField] private Text scoreText;
 
     private EnemyItem[,] _enemyArray;
     private bool _isMovingLeft;
@@ -30,7 +33,7 @@ public class LevelManager : MonoBehaviour
 
         for (var x = 0; x < rows - 1; x++)
         {
-            for (var y = 0; y < column - 3; y++)
+            for (var y = 0; y < column - 5; y++)
             {
                 var enemy = Instantiate(enemyPrefab, this.transform).GetComponent<EnemyItem>();
                 enemy.Initialize(x, y);
@@ -217,6 +220,7 @@ public class LevelManager : MonoBehaviour
     public void IncrementScore(int incrementation)
     {
         Score += incrementation;
+        scoreText.text = Score.ToString();
     }
 
     public void Reset()
