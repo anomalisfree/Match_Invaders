@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class LevelManager : MonoBehaviour
 {
@@ -28,9 +28,9 @@ public class LevelManager : MonoBehaviour
     {
         _enemyArray = new EnemyItem[rows, column];
 
-        for (var x = 0; x < column - 1; x++)
+        for (var x = 0; x < rows - 1; x++)
         {
-            for (var y = 0; y < column - 5; y++)
+            for (var y = 0; y < column - 3; y++)
             {
                 var enemy = Instantiate(enemyPrefab, this.transform).GetComponent<EnemyItem>();
                 enemy.Initialize(x, y);
@@ -46,7 +46,10 @@ public class LevelManager : MonoBehaviour
     {
         while (true)
         {
-            yield return new WaitForSeconds(stepDelay);
+            yield return new WaitForSeconds(stepDelay/2f);
+            EnemyShoot();
+            yield return new WaitForSeconds(stepDelay/2f);
+            
             if (!_isMovingLeft)
             {
                 var canMoveRight = true;
@@ -92,11 +95,34 @@ public class LevelManager : MonoBehaviour
         }
     }
 
+    private void EnemyShoot()
+    {
+        var allShoots = 0;
+        
+        for (var x = 0; x < rows; x++)
+        {
+            if (allShoots < 5)
+            {
+                if (Random.Range(0, 2) == 0)
+                {
+                    for (var y = column-1; y >= 0; y--)
+                    {
+                        if (_enemyArray[x, y] != null)
+                        {
+                            _enemyArray[x, y].Shoot();
+                            allShoots++;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
     private void MoveRight()
     {
-        for (var y = 0; y < rows; y++)
+        for (var y = 0; y < column; y++)
         {
-            for (var x = column - 1; x > 0; x--)
+            for (var x = rows - 1; x > 0; x--)
             {
                 _enemyArray[x, y] = _enemyArray[x - 1, y];
 
@@ -110,9 +136,9 @@ public class LevelManager : MonoBehaviour
 
     private void MoveLeft()
     {
-        for (var y = 0; y < rows; y++)
+        for (var y = 0; y < column; y++)
         {
-            for (var x = 0; x < column - 1; x++)
+            for (var x = 0; x < rows - 1; x++)
             {
                 _enemyArray[x, y] = _enemyArray[x + 1, y];
 
@@ -120,15 +146,15 @@ public class LevelManager : MonoBehaviour
                     _enemyArray[x, y].SetPos(x, y);
             }
 
-            _enemyArray[column - 1, y] = null;
+            _enemyArray[rows - 1, y] = null;
         }
     }
 
     private void MoveDown()
     {
-        for (var x = 0; x < column; x++)
+        for (var x = 0; x < rows; x++)
         {
-            for (var y = rows - 1; y > 0; y--)
+            for (var y = column - 1; y > 0; y--)
             {
                 _enemyArray[x, y] = _enemyArray[x, y - 1];
 
@@ -158,7 +184,6 @@ public class LevelManager : MonoBehaviour
         }
         else if (_deadEnemiesInOneTime > 0)
         {
-            Debug.Log(_deadEnemiesInOneTime);
             IncrementScore(_deadEnemiesInOneTime * Fibonacci(_deadEnemiesInOneTime + 1) * 10);
             _deadEnemiesInOneTime = 0;
         }

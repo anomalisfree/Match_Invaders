@@ -11,6 +11,9 @@ public class EnemyItem : MonoBehaviour
     [SerializeField] private float gridScale;
     [SerializeField] private float movingSpeed;
     [SerializeField] private GameObject deadPrefab;
+    
+    [SerializeField] private Transform bulletCreator;
+    [SerializeField] private GameObject bullet;
 
     private Transform _enemyTransform;
     private SpriteRenderer _spriteRenderer;
@@ -23,7 +26,7 @@ public class EnemyItem : MonoBehaviour
         _spriteRenderer = GetComponent<SpriteRenderer>();
         _enemyTransform = transform;
 
-        switch (Random.Range(0, 5))
+        switch (Random.Range(0, 4))
         {
             case 0:
                 color = _spriteRenderer.color = Color.yellow;
@@ -39,10 +42,6 @@ public class EnemyItem : MonoBehaviour
 
             case 3:
                 color = _spriteRenderer.color = Color.blue;
-                break;
-            
-            case 4:
-                color = _spriteRenderer.color = Color.white;
                 break;
         }
 
@@ -96,5 +95,10 @@ public class EnemyItem : MonoBehaviour
         Destroy(deadEnemy, 0.2f);
             
         Destroy(gameObject);
+    }
+
+    public void Shoot()
+    {
+        Instantiate(bullet, bulletCreator.position, bulletCreator.rotation);
     }
 }
