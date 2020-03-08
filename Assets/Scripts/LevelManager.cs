@@ -19,8 +19,7 @@ public class LevelManager : MonoBehaviour
     private int _deadEnemiesInOneTime;
     private float _timerDeadEnemies;
 
-    public int Score { get; private set; }
-
+    private int _score;
 
     private void Start()
     {
@@ -217,19 +216,19 @@ public class LevelManager : MonoBehaviour
         StopAllCoroutines();
     }
 
-    public void IncrementScore(int incrementation)
+    private void IncrementScore(int incrementation)
     {
-        Score += incrementation;
-        scoreText.text = Score.ToString();
+        _score += incrementation;
+        scoreText.text = _score.ToString();
     }
 
     public void Reset()
     {
-        Score = 0;
+        _score = 0;
         // reset logic
     }
 
-    public static int Fibonacci(int index)
+    private static int Fibonacci(int index)
     {
         var n1 = 0;
         var n2 = 1;
