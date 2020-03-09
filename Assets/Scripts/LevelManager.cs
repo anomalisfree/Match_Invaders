@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using Data;
 using UnityEngine;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
@@ -10,31 +12,30 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private int column;
 
     [SerializeField] private GameObject playerPrefab;
-
     [SerializeField] private GameObject enemyPrefab;
-    [SerializeField] private float stepDelay;
+    [SerializeField] private GameObject healthIndicator;
 
+    [SerializeField] private Transform healthUi;
     [SerializeField] private Text scoreText;
 
-    [SerializeField] private GameObject healthIndicator;
-    [SerializeField] private Transform healthUi;
+    private int _playerHealth;
+    private float _stepDelay;
+    private int _score;
 
-    [SerializeField] private int playerHealth;
-
+    private GameSettings _gameSettings;
     private MainCharacter _mainCharacter;
-    
+
     private EnemyItem[,] _enemyArray;
     private bool _isMovingLeft;
 
     private int _deadEnemiesInOneTime;
     private float _timerDeadEnemies;
 
-    private int _score;
-
     private readonly List<GameObject> _playerHealthUi = new List<GameObject>();
 
     private void Start()
     {
+        GetSettings();
         InitializeLevel();
     }
 
@@ -54,8 +55,8 @@ public class LevelManager : MonoBehaviour
         }
 
         _playerHealthUi.Clear();
-        
-        for (var i = 0; i < playerHealth; i++)
+
+        for (var i = 0; i < _playerHealth; i++)
         {
             var healthUiIndicator = Instantiate(healthIndicator, healthUi);
             healthUiIndicator.GetComponent<RectTransform>().anchoredPosition = Vector2.right * (100 + (i * 50));
@@ -64,18 +65,26 @@ public class LevelManager : MonoBehaviour
 
         _mainCharacter = Instantiate(playerPrefab).GetComponent<MainCharacter>();
         _mainCharacter.onGetHit += GetHit;
-       
+
         StartCoroutine(EnemiesSteps());
+    }
+
+    private void GetSettings()
+    {
+        _gameSettings =
+            JsonUtility.FromJson<GameSettings>(File.ReadAllText(Application.dataPath + "/Settings/config.json"));
+        _playerHealth = _gameSettings.playerHealth;
+        _stepDelay = _gameSettings.startStepDelay;
     }
 
     private IEnumerator EnemiesSteps()
     {
         while (true)
         {
-            yield return new WaitForSeconds(stepDelay/2f);
+            yield return new WaitForSeconds(_stepDelay / 2f);
             EnemyShoot();
-            yield return new WaitForSeconds(stepDelay/2f);
-            
+            yield return new WaitForSeconds(_stepDelay / 2f);
+
             if (!_isMovingLeft)
             {
                 var canMoveRight = true;
@@ -114,14 +123,14 @@ public class LevelManager : MonoBehaviour
     private void EnemyShoot()
     {
         var allShoots = 0;
-        
+
         for (var x = 0; x < rows; x++)
         {
             if (allShoots < 5)
             {
                 if (Random.Range(0, 2) == 0)
                 {
-                    for (var y = column-1; y >= 0; y--)
+                    for (var y = column - 1; y >= 0; y--)
                     {
                         if (_enemyArray[x, y] != null)
                         {
@@ -134,6 +143,7 @@ public class LevelManager : MonoBehaviour
             }
         }
     }
+
     private void MoveRight()
     {
         for (var y = 0; y < column; y++)
@@ -227,11 +237,11 @@ public class LevelManager : MonoBehaviour
 
     private void GetHit()
     {
-        playerHealth--;
+        _playerHealth--;
         Destroy(_playerHealthUi[_playerHealthUi.Count - 1]);
         _playerHealthUi.RemoveAt(_playerHealthUi.Count - 1);
 
-        if (playerHealth <= 0)
+        if (_playerHealth <= 0)
         {
             Lose();
         }

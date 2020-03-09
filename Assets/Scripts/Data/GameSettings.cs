@@ -1,12 +1,13 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Data
 {
-   [SerializeField]
+  [Serializable]
    public class GameSettings
    {
-      public int PlayerHealth;
-      public float StartStepDelay;
-      public float StepDelayMultiplier;
+      public int playerHealth;
+      public float startStepDelay;
+      public float stepDelayMultiplier;
    }
 }
