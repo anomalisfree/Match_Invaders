@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
@@ -8,11 +9,20 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private int rows;
     [SerializeField] private int column;
 
+    [SerializeField] private GameObject playerPrefab;
+
     [SerializeField] private GameObject enemyPrefab;
     [SerializeField] private float stepDelay;
 
     [SerializeField] private Text scoreText;
 
+    [SerializeField] private GameObject healthIndicator;
+    [SerializeField] private Transform healthUi;
+
+    [SerializeField] private int playerHealth;
+
+    private MainCharacter _mainCharacter;
+    
     private EnemyItem[,] _enemyArray;
     private bool _isMovingLeft;
 
@@ -20,6 +30,8 @@ public class LevelManager : MonoBehaviour
     private float _timerDeadEnemies;
 
     private int _score;
+
+    private readonly List<GameObject> _playerHealthUi = new List<GameObject>();
 
     private void Start()
     {
@@ -41,6 +53,18 @@ public class LevelManager : MonoBehaviour
             }
         }
 
+        _playerHealthUi.Clear();
+        
+        for (var i = 0; i < playerHealth; i++)
+        {
+            var healthUiIndicator = Instantiate(healthIndicator, healthUi);
+            healthUiIndicator.GetComponent<RectTransform>().anchoredPosition = Vector2.right * (100 + (i * 50));
+            _playerHealthUi.Add(healthUiIndicator);
+        }
+
+        _mainCharacter = Instantiate(playerPrefab).GetComponent<MainCharacter>();
+        _mainCharacter.onGetHit += GetHit;
+       
         StartCoroutine(EnemiesSteps());
     }
 
@@ -65,13 +89,9 @@ public class LevelManager : MonoBehaviour
                 }
 
                 if (canMoveRight)
-                {
                     MoveRight();
-                }
                 else
-                {
                     MoveDown();
-                }
             }
             else
             {
@@ -80,19 +100,13 @@ public class LevelManager : MonoBehaviour
                 for (var y = 0; y < column; y++)
                 {
                     if (_enemyArray[0, y] != null)
-                    {
                         canMoveLeft = false;
-                    }
                 }
 
                 if (canMoveLeft)
-                {
                     MoveLeft();
-                }
                 else
-                {
                     MoveDown();
-                }
             }
         }
     }
@@ -211,9 +225,23 @@ public class LevelManager : MonoBehaviour
             _enemyArray[x, y + 1].DelayDead();
     }
 
+    private void GetHit()
+    {
+        playerHealth--;
+        Destroy(_playerHealthUi[_playerHealthUi.Count - 1]);
+        _playerHealthUi.RemoveAt(_playerHealthUi.Count - 1);
+
+        if (playerHealth <= 0)
+        {
+            Lose();
+        }
+    }
+
     private void Lose()
     {
         StopAllCoroutines();
+        _mainCharacter.onGetHit -= GetHit;
+        _mainCharacter.Dead();
     }
 
     private void IncrementScore(int incrementation)
