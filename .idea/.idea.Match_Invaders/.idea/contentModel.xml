@@ -9,6 +9,9 @@
         <e p="Scripts" t="Include">
           <e p="Block.cs" t="Include" />
           <e p="Bullet.cs" t="Include" />
+          <e p="Data" t="Include">
+            <e p="GameSettings.cs" t="Include" />
+          </e>
           <e p="EnemyItem.cs" t="Include" />
           <e p="GameManager.cs" t="Include" />
           <e p="LevelManager.cs" t="Include" />
