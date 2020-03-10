@@ -66,7 +66,7 @@ public class LevelManager : MonoBehaviour
             for (var y = 0; y < column - 5; y++)
             {
                 var enemy = Instantiate(enemyPrefab, this.transform).GetComponent<EnemyItem>();
-                enemy.Initialize(x, y);
+                enemy.Initialize(x, y, _gameSettings.enemyMovingSpeed, _gameSettings.enemyBulletSpeed);
                 _enemyArray[x, y] = enemy;
                 _enemyArray[x, y].onDead += OnEnemyDead;
             }
@@ -90,6 +90,7 @@ public class LevelManager : MonoBehaviour
             Destroy(_mainCharacter.gameObject);
         
         _mainCharacter = Instantiate(playerPrefab).GetComponent<MainCharacter>();
+        _mainCharacter.Initialize(_gameSettings.playerSpeed, _gameSettings.playerBulletSpeed);
         _mainCharacter.onGetHit += GetHit;
 
         foreach (var block in _blocks.Where(block => block != null))

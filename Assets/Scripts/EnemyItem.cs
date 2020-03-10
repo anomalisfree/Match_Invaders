@@ -9,11 +9,13 @@ public class EnemyItem : MonoBehaviour
     public Action<int, int, Color> onDead;
 
     [SerializeField] private float gridScale;
-    [SerializeField] private float movingSpeed;
     [SerializeField] private GameObject deadPrefab;
     
     [SerializeField] private Transform bulletCreator;
     [SerializeField] private GameObject bullet;
+    
+    private float _movingSpeed;
+    private float _bulletSpeed;
 
     private Transform _enemyTransform;
     private SpriteRenderer _spriteRenderer;
@@ -21,7 +23,7 @@ public class EnemyItem : MonoBehaviour
     private int _x;
     private int _y;
 
-    public void Initialize(int x, int y)
+    public void Initialize(int x, int y, float movingSpeed, float bulletSpeed)
     {
         _spriteRenderer = GetComponent<SpriteRenderer>();
         _enemyTransform = transform;
@@ -47,6 +49,9 @@ public class EnemyItem : MonoBehaviour
 
         SetPos(x, y);
 
+        _movingSpeed = movingSpeed;
+        _bulletSpeed = bulletSpeed;
+
         _enemyTransform.localPosition = (Vector3.right * x + Vector3.down * y) * gridScale;
     }
 
@@ -61,7 +66,7 @@ public class EnemyItem : MonoBehaviour
         if (_enemyTransform.localPosition != (Vector3.right * _x + Vector3.down * _y) * gridScale)
         {
             _enemyTransform.localPosition = Vector3.MoveTowards(_enemyTransform.localPosition,
-                (Vector3.right * _x + Vector3.down * _y) * gridScale, Time.deltaTime * movingSpeed);
+                (Vector3.right * _x + Vector3.down * _y) * gridScale, Time.deltaTime * _movingSpeed);
         }
     }
 
@@ -100,6 +105,6 @@ public class EnemyItem : MonoBehaviour
 
     public void Shoot()
     {
-        Instantiate(bullet, bulletCreator.position, bulletCreator.rotation);
+        Instantiate(bullet, bulletCreator.position, bulletCreator.rotation).GetComponent<Bullet>().speed = _bulletSpeed;
     }
 }

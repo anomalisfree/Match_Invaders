@@ -1,7 +1,11 @@
 {
   "playerHealth": 3,
+  "playerSpeed": 10,
   "startStepDelay": 5,
   "stepDelayMultiplier": 0.975,
   "blocksCount": 4,
-  "blocksHealth": 5
+  "blocksHealth": 5,
+  "playerBulletSpeed" : 10,
+  "enemyBulletSpeed": 10,
+  "enemyMovingSpeed": 5
 }

@@ -2,15 +2,16 @@
 
 public class Bullet : MonoBehaviour
 {
-    [SerializeField] private float speed;
-    [SerializeField] private float lifeTime;
-
+    public float speed;
+    
+    private float _lifeTime;
     private Transform _transform;
     
     private void Start()
     {
         _transform = transform;
-        Destroy(gameObject, lifeTime);
+        _lifeTime = 20 / speed;
+        Destroy(gameObject, _lifeTime);
     }
 
     private void Update()

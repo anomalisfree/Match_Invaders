@@ -5,16 +5,23 @@ public class MainCharacter : MonoBehaviour
 {
     public Action onGetHit;
 
-    [SerializeField] private float speed;
     [SerializeField] private Transform bulletCreator;
     [SerializeField] private GameObject bullet;
     [SerializeField] private GameObject deadPrefab;
 
     private Transform _transform;
+    private float _speed;
+    private float _bulletSpeed;
 
     private void Start()
     {
         _transform = transform;
+    }
+
+    public void Initialize(float speed, float bulletSpeed)
+    {
+        _speed = speed;
+        _bulletSpeed = bulletSpeed;
     }
 
     private void Update()
@@ -23,7 +30,7 @@ public class MainCharacter : MonoBehaviour
         {
             var position = _transform.position;
 
-            position += Vector3.right * (Input.GetAxis("Horizontal") * speed * Time.deltaTime);
+            position += Vector3.right * (Input.GetAxis("Horizontal") * _speed * Time.deltaTime);
 
             if (position.x < -12)
             {
@@ -39,7 +46,8 @@ public class MainCharacter : MonoBehaviour
 
         if (Input.GetButtonDown("Fire1"))
         {
-            Instantiate(bullet, bulletCreator.position, bulletCreator.rotation);
+            Instantiate(bullet, bulletCreator.position, bulletCreator.rotation).GetComponent<Bullet>().speed =
+                _bulletSpeed;
         }
     }
 
