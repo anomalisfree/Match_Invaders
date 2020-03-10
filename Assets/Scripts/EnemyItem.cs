@@ -10,10 +10,10 @@ public class EnemyItem : MonoBehaviour
 
     [SerializeField] private float gridScale;
     [SerializeField] private GameObject deadPrefab;
-    
+
     [SerializeField] private Transform bulletCreator;
     [SerializeField] private GameObject bullet;
-    
+
     private float _movingSpeed;
     private float _bulletSpeed;
 
@@ -93,13 +93,14 @@ public class EnemyItem : MonoBehaviour
     private void EnemyDead()
     {
         StopAllCoroutines();
-        onDead.Invoke(_x, _y, color);
-        
+
+        onDead?.Invoke(_x, _y, color);
+
         var transformThis = transform;
         var deadEnemy = Instantiate(deadPrefab, transformThis.position, transformThis.rotation);
         deadEnemy.GetComponent<SpriteRenderer>().color = color;
         Destroy(deadEnemy, 0.2f);
-            
+
         Destroy(gameObject);
     }
 

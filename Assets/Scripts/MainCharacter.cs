@@ -56,7 +56,7 @@ public class MainCharacter : MonoBehaviour
         if (other.gameObject.GetComponent<Bullet>() != null)
         {
             Destroy(other.gameObject);
-            onGetHit.Invoke();
+            onGetHit?.Invoke();
         }
     }
 
