@@ -13,6 +13,7 @@
             <e p="GameSettings.cs" t="Include" />
           </e>
           <e p="EnemyItem.cs" t="Include" />
+          <e p="Fade.cs" t="Include" />
           <e p="GameManager.cs" t="Include" />
           <e p="GameOverScreen.cs" t="Include" />
           <e p="LevelManager.cs" t="Include" />

@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
 {
     [SerializeField] private string gameScene;
     [SerializeField] private Text bestScoreText;
+    [SerializeField] private Fade startFade;
 
     private void Start()
     {
@@ -28,8 +29,9 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator LoadScene(string sceneName)
     {
-        Debug.Log("Loading game!");
-        yield return new WaitForSeconds(.4f);
+        startFade.gameObject.SetActive(true);
+        startFade.targetAlpha = 1;
+        yield return new WaitForSeconds(1f);
         SceneManager.LoadScene(sceneName);
     }
 }
