@@ -1,9 +1,4 @@
 # Project Review
 
-## Applicant name
-
----
-
-<!-- Your review goes here -->
-<!-- Explain why you did the things that way or any snippet that is word mentioning -->
-<!-- If you had any issue and how you resolved them -->
+I spent about 8 hours on solving the test task.
+I liked doing this test task because it is a complete project in which I needed to demonstrate my knowledge in various fields.
