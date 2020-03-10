@@ -5,7 +5,8 @@ using UnityEngine;
 
 public class Block : MonoBehaviour
 {
-    [SerializeField] private int health;
+    public int health;
+    
     [SerializeField] private GameObject deadPrefab;
 
     private Transform _transform;

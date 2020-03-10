@@ -1,5 +1,7 @@
 {
-  "playerHealth": 5,
+  "playerHealth": 3,
   "startStepDelay": 5,
-  "stepDelayMultiplier": 2
+  "stepDelayMultiplier": 0.975,
+  "blocksCount": 4,
+  "blocksHealth": 5
 }

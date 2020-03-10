@@ -1,11 +1,25 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
+using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
-/// <summary> Manages the state of the whole application </summary>
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private string gameScene;
+    [SerializeField] private Text bestScoreText;
+
+    private void Start()
+    {
+        int.TryParse(File.ReadAllText(Application.dataPath + "/Settings/score.dat"), out var bestScore);
+        bestScoreText.text = "Best score: " + bestScore;
+    }
+
+    public void Quit()
+    {
+        Application.Quit();
+    }
 
     public void Play()
     {

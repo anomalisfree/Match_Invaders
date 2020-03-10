@@ -9,5 +9,7 @@ namespace Data
       public int playerHealth;
       public float startStepDelay;
       public float stepDelayMultiplier;
+      public int blocksCount;
+      public int blocksHealth;
    }
 }

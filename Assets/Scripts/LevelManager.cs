@@ -1,8 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Data;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
@@ -14,9 +16,14 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private GameObject playerPrefab;
     [SerializeField] private GameObject enemyPrefab;
     [SerializeField] private GameObject healthIndicator;
+    [SerializeField] private GameObject blockPrefab;
 
     [SerializeField] private Transform healthUi;
     [SerializeField] private Text scoreText;
+
+    [SerializeField] private GameOverScreen gameOverScreen;
+    [SerializeField] private GameObject pauseScreen;
+    [SerializeField] private GameObject nextLevelScreen;
 
     private int _playerHealth;
     private float _stepDelay;
@@ -25,22 +32,33 @@ public class LevelManager : MonoBehaviour
     private GameSettings _gameSettings;
     private MainCharacter _mainCharacter;
 
-    private EnemyItem[,] _enemyArray;
+    private EnemyItem[,] _enemyArray = { };
     private bool _isMovingLeft;
+    private bool _canShoot;
 
     private int _deadEnemiesInOneTime;
     private float _timerDeadEnemies;
 
     private readonly List<GameObject> _playerHealthUi = new List<GameObject>();
+    private readonly List<GameObject> _blocks = new List<GameObject>();
 
     private void Start()
     {
-        GetSettings();
-        InitializeLevel();
+        _gameSettings = GetSettings();
+        InitializeLevel(_gameSettings.playerHealth);
     }
 
-    private void InitializeLevel()
+    private void InitializeLevel(int health)
     {
+        _playerHealth = health;
+        _stepDelay = _gameSettings.startStepDelay;
+
+        foreach (var enemy in _enemyArray)
+        {
+            if (enemy != null)
+                Destroy(enemy.gameObject);
+        }
+
         _enemyArray = new EnemyItem[rows, column];
 
         for (var x = 0; x < rows - 1; x++)
@@ -54,6 +72,11 @@ public class LevelManager : MonoBehaviour
             }
         }
 
+        foreach (var playerHealth in _playerHealthUi.Where(playerHealth => playerHealth != null))
+        {
+            Destroy(playerHealth);
+        }
+
         _playerHealthUi.Clear();
 
         for (var i = 0; i < _playerHealth; i++)
@@ -63,18 +86,42 @@ public class LevelManager : MonoBehaviour
             _playerHealthUi.Add(healthUiIndicator);
         }
 
+        if (_mainCharacter != null) 
+            Destroy(_mainCharacter.gameObject);
+        
         _mainCharacter = Instantiate(playerPrefab).GetComponent<MainCharacter>();
         _mainCharacter.onGetHit += GetHit;
+
+        foreach (var block in _blocks.Where(block => block != null))
+        {
+            Destroy(block);
+        }
+
+        _blocks.Clear();
+
+        if (_gameSettings.blocksCount > 1)
+        {
+            for (var i = 0; i < _gameSettings.blocksCount; i++)
+            {
+                var block = Instantiate(blockPrefab,
+                    new Vector3(-10 + (i * 20 / (_gameSettings.blocksCount - 1)), -6.5f, 0), Quaternion.identity);
+                block.GetComponent<Block>().health = _gameSettings.blocksHealth;
+                _blocks.Add(block);
+            }
+        }
+        else if (_gameSettings.blocksCount == 1)
+        {
+            var block = Instantiate(blockPrefab, new Vector3(0, -6.5f, 0), Quaternion.identity);
+            block.GetComponent<Block>().health = _gameSettings.blocksHealth;
+            _blocks.Add(block);
+        }
 
         StartCoroutine(EnemiesSteps());
     }
 
-    private void GetSettings()
+    private static GameSettings GetSettings()
     {
-        _gameSettings =
-            JsonUtility.FromJson<GameSettings>(File.ReadAllText(Application.dataPath + "/Settings/config.json"));
-        _playerHealth = _gameSettings.playerHealth;
-        _stepDelay = _gameSettings.startStepDelay;
+        return JsonUtility.FromJson<GameSettings>(File.ReadAllText(Application.dataPath + "/Settings/config.json"));
     }
 
     private IEnumerator EnemiesSteps()
@@ -213,6 +260,11 @@ public class LevelManager : MonoBehaviour
             IncrementScore(_deadEnemiesInOneTime * Fibonacci(_deadEnemiesInOneTime + 1) * 10);
             _deadEnemiesInOneTime = 0;
         }
+
+        if (Input.GetButtonDown("Cancel"))
+        {
+            Pause();
+        }
     }
 
     private void OnEnemyDead(int x, int y, Color color)
@@ -233,6 +285,21 @@ public class LevelManager : MonoBehaviour
 
         if (y < column - 1 && _enemyArray[x, y + 1] != null && _enemyArray[x, y + 1].color == color)
             _enemyArray[x, y + 1].DelayDead();
+
+        _stepDelay *= _gameSettings.stepDelayMultiplier;
+    }
+
+    private bool HasEnemies()
+    {
+        return _enemyArray.Cast<EnemyItem>().Any(enemy => enemy != null);
+    }
+
+    private IEnumerator NextLevel()
+    {
+        nextLevelScreen.SetActive(true);
+        yield return new WaitForSeconds(2);
+        InitializeLevel(_playerHealth);
+        nextLevelScreen.SetActive(false);
     }
 
     private void GetHit()
@@ -252,18 +319,43 @@ public class LevelManager : MonoBehaviour
         StopAllCoroutines();
         _mainCharacter.onGetHit -= GetHit;
         _mainCharacter.Dead();
+        gameOverScreen.CheckScore(_score);
     }
 
     private void IncrementScore(int incrementation)
     {
         _score += incrementation;
         scoreText.text = _score.ToString();
+
+        if (HasEnemies()) return;
+        StopAllCoroutines();
+        StartCoroutine(NextLevel());
     }
 
     public void Reset()
     {
         _score = 0;
-        // reset logic
+        scoreText.text = _score.ToString();
+        InitializeLevel(_gameSettings.playerHealth);
+    }
+
+    public void MainMenu()
+    {
+        SceneManager.LoadScene(0);
+    }
+
+    public void Pause()
+    {
+        if (pauseScreen.activeSelf)
+        {
+            pauseScreen.SetActive(false);
+            Time.timeScale = 1;
+        }
+        else
+        {
+            pauseScreen.SetActive(true);
+            Time.timeScale = 0;
+        }
     }
 
     private static int Fibonacci(int index)
